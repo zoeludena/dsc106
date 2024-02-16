@@ -224,12 +224,31 @@
 
 <style>
   /* Add any styles if needed */
+  #container {
+    position: relative;
+    min-height: 100vh;
+    padding: 20px; /* Add padding for better spacing */
+  }
+
+  #dropdown {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  #my_dataviz {
+    margin-top: 20px; /* Add margin-top to separate from dropdown */
+  }
 </style>
 
-<div id="my_dataviz"></div>
-<!-- Dropdown menu for selecting groups -->
-<select bind:value={selectedGroup} on:change={() => drawLinePlot(data, selectedGroup)}>
-  {#each [...new Set(data.map(d => d.Groups))] as group}
-    <option value={group}>{group}</option>
-  {/each}
-</select>
+<div id="container">
+  <!-- Dropdown menu for selecting groups -->
+  <select id="dropdown" bind:value={selectedGroup} on:change={() => drawLinePlot(data, selectedGroup)}>
+    {#each [...new Set(data.map(d => d.Groups))] as group}
+      <option value={group}>{group}</option>
+    {/each}
+  </select>
+
+  <!-- Visualization container -->
+  <div id="my_dataviz"></div>
+</div>
