@@ -33,18 +33,24 @@
 
     console.log("Selected Group:", selectedGroup);
 
-    // Set the dimensions and margins of the graph
-    var margin = { top: 60, right: 30, bottom: 90, left: 80 },
-      width = 800 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+    // Set the dimensions of the SVG
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Adjust dimensions as needed
+    const margin = { top: 60, right: 30, bottom: 90, left: 30 }; // Adjust left margin
+    const padding = 60; // Increase the padding
+    const width = screenWidth - margin.left - margin.right - (padding * 2);
+    const height = screenHeight - margin.top - margin.bottom - (padding * 2);
 
     // Append the svg object to the body of the page
     var svg = d3.select("#my_dataviz")
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", width + margin.left + margin.right + (padding * 2))
+      .attr("height", height + margin.top + margin.bottom + (padding * 2))
       .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(" + (margin.left + padding) + "," + (margin.top + padding) + ")");
+
 
     // Add title
     svg.append("text")
@@ -177,7 +183,7 @@
     // Y-axis label
     svg.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left + 10)
+      .attr("y", 0 - margin.left - 50)
       .attr("x", 0 - height / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
@@ -190,35 +196,6 @@
       .style("opacity", 0)
       .attr("class", "tooltip")
       .style("position", "absolute");
-
-    // Add legend
-    var legend = svg.append("g")
-      .attr("transform", "translate(" + (width - 50) + ",10)");
-
-    legend.append("rect")
-      .attr("width", 20)
-      .attr("height", 20)
-      .attr("fill", "blue");
-
-    legend.append("text")
-      .attr("x", 30)
-      .attr("y", 4)
-      .attr("dy", "0.75em")
-      .text("Male")
-      .style("fill", "blue");
-
-    legend.append("rect")
-      .attr("y", 30) // Vertical offset
-      .attr("width", 20)
-      .attr("height", 20)
-      .attr("fill", "pink");
-
-    legend.append("text")
-      .attr("x", 30)
-      .attr("y", 34) // Vertical offset
-      .attr("dy", "0.75em")
-      .text("Female")
-      .style("fill", "pink");
   }
 </script>
 
@@ -237,7 +214,8 @@
   }
 
   #my_dataviz {
-    margin-top: 20px; /* Add margin-top to separate from dropdown */
+    width: 100vw;
+    height: 100vh;
   }
 </style>
 
@@ -251,4 +229,13 @@
 
   <!-- Visualization container -->
   <div id="my_dataviz"></div>
+</div>
+
+<div style="position: absolute; top: 10px; right: 10px;">
+  <svg width="100" height="70">
+    <rect x="10" y="10" width="20" height="20" fill="blue"></rect>
+    <text x="40" y="15" dy="0.75em">Male</text>
+    <rect x="10" y="40" width="20" height="20" fill="pink"></rect>
+    <text x="40" y="45" dy="0.75em">Female</text>
+  </svg>
 </div>
