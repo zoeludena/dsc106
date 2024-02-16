@@ -153,6 +153,35 @@
       .style("opacity", 0)
       .attr("class", "tooltip")
       .style("position", "absolute");
+
+    // Add legend
+    var legend = svg.append("g")
+      .attr("transform", "translate(" + (width - 80) + ",10)");
+
+    legend.append("rect")
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", "blue");
+
+    legend.append("text")
+      .attr("x", 30)
+      .attr("y", 10)
+      .attr("dy", "0.75em")
+      .text("Male")
+      .style("fill", "blue");
+
+    legend.append("rect")
+      .attr("y", 30) // Vertical offset
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", "pink");
+
+    legend.append("text")
+      .attr("x", 30)
+      .attr("y", 40) // Vertical offset
+      .attr("dy", "0.75em")
+      .text("Female")
+      .style("fill", "pink");
   }
 </script>
 
