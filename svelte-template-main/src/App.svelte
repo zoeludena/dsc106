@@ -26,7 +26,7 @@
     // Set the dimensions and margins of the graph
     var margin = { top: 10, right: 30, bottom: 30, left: 40 },
       width = 800 - margin.left - margin.right,
-      height = 800 - margin.top - margin.bottom;
+      height = 500 - margin.top - margin.bottom;
 
     // Append the svg object to the body of the page
     var svg = d3.select("#my_dataviz")
@@ -59,9 +59,14 @@
       .range([0, width])
       .paddingInner(0.1);
 
+    // Calculate the minimum value among male and female medians
+    var minValue = d3.min([...medianValuesMale, ...medianValuesFemale], d => d.Median);
+
+    // Set up Y scale based on the minimum value with a 1000 offset
     var yScale = d3.scaleLinear()
-      .domain([0, d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
+      .domain([Math.max(0, minValue - 1000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
       .range([height, 0]);
+
 
     // Draw the lines for male and female
     svg.append("path")
