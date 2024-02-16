@@ -127,7 +127,7 @@
       tooltip.transition()
         .duration(200)
         .style("opacity", .9);
-      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${d.Median}`)
+      tooltip.html(`Year: ${d.Year}<br>Median (Female): ${d.Median}`)
         .style("left", (event.pageX + 10) + "px") // Adjust the left position
         .style("top", (event.pageY - 28) + "px"); // Adjust the top position
     })
