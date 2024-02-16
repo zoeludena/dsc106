@@ -19,7 +19,7 @@
 
     // Draw line plot for a specific occupation
     drawLinePlot(data, "Office and Administrative Support Occupations");
-  }); 
+  });
 
   // Line Plot
   function drawLinePlot(data, selectedOccupation) {
@@ -67,7 +67,6 @@
       .domain([Math.max(0, minValue - 1000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
       .range([height, 0]);
 
-
     // Draw the lines for male and female
     svg.append("path")
       .datum(medianValuesMale)
@@ -89,6 +88,56 @@
         .y(d => yScale(d.Median))
       );
 
+    // Draw circles for each data point on the male line
+    svg.selectAll("circle.male")
+      .data(medianValuesMale)
+      .enter().append("circle")
+      .attr("class", "male")
+      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.Median))
+      .attr("r", 5) // Adjust the radius as needed
+      .attr("fill", "blue") // Set the fill color for male circles
+      .on("mouseover", function (event, d) {
+      // Show tooltip on hover
+      tooltip.transition()
+        .duration(200)
+        .style("opacity", .9);
+      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${d.Median}`)
+        .style("left", (event.pageX + 10) + "px") // Adjust the left position
+        .style("top", (event.pageY - 28) + "px"); // Adjust the top position
+    })
+    .on("mouseout", function (d) {
+      // Hide tooltip on mouseout
+      tooltip.transition()
+        .duration(500)
+        .style("opacity", 0);
+    });
+
+    // Draw circles for each data point on the female line
+    svg.selectAll("circle.female")
+      .data(medianValuesFemale)
+      .enter().append("circle")
+      .attr("class", "female")
+      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.Median))
+      .attr("r", 5) // Adjust the radius as needed
+      .attr("fill", "pink") // Set the fill color for female circles
+      .on("mouseover", function (event, d) {
+      // Show tooltip on hover
+      tooltip.transition()
+        .duration(200)
+        .style("opacity", .9);
+      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${d.Median}`)
+        .style("left", (event.pageX + 10) + "px") // Adjust the left position
+        .style("top", (event.pageY - 28) + "px"); // Adjust the top position
+    })
+    .on("mouseout", function (d) {
+      // Hide tooltip on mouseout
+      tooltip.transition()
+        .duration(500)
+        .style("opacity", 0);
+    });
+
     // Draw X-axis
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -97,6 +146,13 @@
     // Draw Y-axis
     svg.append("g")
       .call(d3.axisLeft(yScale));
+
+    // Add a tooltip element
+    var tooltip = d3.select("body")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("position", "absolute");
   }
 </script>
 
