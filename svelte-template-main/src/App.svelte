@@ -24,7 +24,7 @@
   // Line Plot
   function drawLinePlot(data, selectedOccupation) {
     // Set the dimensions and margins of the graph
-    var margin = { top: 10, right: 30, bottom: 30, left: 40 },
+    var margin = { top: 10, right: 30, bottom: 40, left: 80 },
       width = 800 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
@@ -143,9 +143,27 @@
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(xScale));
 
+    // X-axis label
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + margin.top + 10)
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .text("Year");
+
     // Draw Y-axis
     svg.append("g")
       .call(d3.axisLeft(yScale));
+
+    // Y-axis label
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left + 10)
+      .attr("x", 0 - height / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Total Pre-Tax Personal Income ($)");
+
 
     // Add a tooltip element
     var tooltip = d3.select("body")
@@ -156,7 +174,7 @@
 
     // Add legend
     var legend = svg.append("g")
-      .attr("transform", "translate(" + (width - 80) + ",10)");
+      .attr("transform", "translate(" + (width - 50) + ",10)");
 
     legend.append("rect")
       .attr("width", 20)
