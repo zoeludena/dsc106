@@ -24,7 +24,7 @@
   // Line Plot
   function drawLinePlot(data, selectedOccupation) {
     // Set the dimensions and margins of the graph
-    var margin = { top: 10, right: 30, bottom: 40, left: 80 },
+    var margin = { top: 60, right: 30, bottom: 90, left: 80 },
       width = 800 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
@@ -35,6 +35,15 @@
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -50) // Adjusted y-coordinate
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .style("font-size", "1.5em") // Adjust font size as needed
+      .text("Income Per Gender for " + selectedOccupation);
 
     // Filter data for the selected occupation and remove NaN values
     var filteredData = data.filter(d => d.Groups === selectedOccupation && !isNaN(d.INCTOT));
@@ -146,7 +155,7 @@
     // X-axis label
     svg.append("text")
       .attr("x", width / 2)
-      .attr("y", height + margin.top + 10)
+      .attr("y", height + margin.top - 30)
       .attr("dy", "0.75em")
       .style("text-anchor", "middle")
       .text("Year");
