@@ -55,7 +55,7 @@
     // Add title
     svg.append("text")
       .attr("x", width / 2)
-      .attr("y", -50) // Adjusted y-coordinate
+      .attr("y", -90) // Adjusted y-coordinate
       .attr("dy", "0.75em")
       .style("text-anchor", "middle")
       .style("font-size", "1.5em") // Adjust font size as needed
