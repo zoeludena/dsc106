@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
 
   let data = [];
+  let selectedGroup;
 
   onMount(async () => {
     const res = await fetch('data_full.csv');
@@ -18,11 +19,20 @@
     console.log(data);
 
     // Draw line plot for a specific occupation
-    drawLinePlot(data, "Office and Administrative Support Occupations");
+    if (data.length > 0) {
+      selectedGroup = data[0].Groups;
+      drawLinePlot(data, selectedGroup);
+    }
   });
 
   // Line Plot
   function drawLinePlot(data, selectedOccupation) {
+
+    // Remove existing SVG elements
+    d3.select("#my_dataviz").selectAll("*").remove();
+
+    console.log("Selected Group:", selectedGroup);
+
     // Set the dimensions and margins of the graph
     var margin = { top: 60, right: 30, bottom: 90, left: 80 },
       width = 800 - margin.left - margin.right,
@@ -192,7 +202,7 @@
 
     legend.append("text")
       .attr("x", 30)
-      .attr("y", 10)
+      .attr("y", 4)
       .attr("dy", "0.75em")
       .text("Male")
       .style("fill", "blue");
@@ -205,7 +215,7 @@
 
     legend.append("text")
       .attr("x", 30)
-      .attr("y", 40) // Vertical offset
+      .attr("y", 34) // Vertical offset
       .attr("dy", "0.75em")
       .text("Female")
       .style("fill", "pink");
@@ -217,3 +227,9 @@
 </style>
 
 <div id="my_dataviz"></div>
+<!-- Dropdown menu for selecting groups -->
+<select bind:value={selectedGroup} on:change={() => drawLinePlot(data, selectedGroup)}>
+  {#each [...new Set(data.map(d => d.Groups))] as group}
+    <option value={group}>{group}</option>
+  {/each}
+</select>
