@@ -86,10 +86,11 @@
 
     // Calculate the minimum value among male and female medians
     var minValue = d3.min([...medianValuesMale, ...medianValuesFemale], d => d.Median);
+  
 
     // Set up Y scale based on the minimum value with a 1000 offset
     var yScale = d3.scaleLinear()
-      .domain([Math.max(0, minValue - 1000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
+      .domain([Math.max(0, minValue - 3000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
       .range([height, 0]);
 
     // Draw the lines for male and female
@@ -166,7 +167,8 @@
     // Draw X-axis
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(xScale));
+      .call(d3.axisBottom(xScale))
+      .style("font-size", ".7em");
 
     // X-axis label
     svg.append("text")
@@ -178,7 +180,8 @@
 
     // Draw Y-axis
     svg.append("g")
-      .call(d3.axisLeft(yScale));
+      .call(d3.axisLeft(yScale))
+      .style("font-size", "0.7em");
 
     // Y-axis label
     svg.append("text")
