@@ -469,7 +469,7 @@ function drawLine(svg, data, group, width, height) {
 
   .legend {
     position: absolute;
-    top: 90px;
+    top: 40px;
     right: 5px;
   }
 </style>
