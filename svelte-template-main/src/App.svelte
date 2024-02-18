@@ -97,7 +97,7 @@
     svg.append("path")
       .datum(medianValuesMale)
       .attr("fill", "none")
-      .attr("stroke", "#62aec5")
+      .attr("stroke", "#0066FF")
       .attr("stroke-width", 2)
       .attr("d", d3.line()
         .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
@@ -107,7 +107,7 @@
     svg.append("path")
       .datum(medianValuesFemale)
       .attr("fill", "none")
-      .attr("stroke", "#e64072")
+      .attr("stroke", "#FF6699")
       .attr("stroke-width", 2)
       .attr("d", d3.line()
         .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
@@ -122,7 +122,7 @@
       .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
       .attr("cy", d => yScale(d.Median))
       .attr("r", 5) // Adjust the radius as needed
-      .attr("fill", "#62aec5") // Set the fill color for male circles
+      .attr("fill", "#0066FF") // Set the fill color for male circles
       .on("mouseover", function (event, d) {
       // Show tooltip on hover
       tooltip.transition()
@@ -147,7 +147,7 @@
       .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
       .attr("cy", d => yScale(d.Median))
       .attr("r", 5) // Adjust the radius as needed
-      .attr("fill", "#e64072") // Set the fill color for female circles
+      .attr("fill", "#FF6699") // Set the fill color for female circles
       .on("mouseover", function (event, d) {
       // Show tooltip on hover
       tooltip.transition()
@@ -236,9 +236,9 @@
 
 <div style="position: absolute; top: 10px; right: 10px;">
   <svg width="100" height="70">
-    <rect x="10" y="10" width="20" height="20" fill="#62aec5"></rect>
+    <rect x="10" y="10" width="20" height="20" fill="#0066FF"></rect>
     <text x="40" y="15" dy="0.75em">Male</text>
-    <rect x="10" y="40" width="20" height="20" fill="#e64072"></rect>
+    <rect x="10" y="40" width="20" height="20" fill="#FF6699"></rect>
     <text x="40" y="45" dy="0.75em">Female</text>
   </svg>
 </div>
