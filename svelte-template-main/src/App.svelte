@@ -118,6 +118,14 @@
         .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
         .y(d => yScale(d.Median))
       );
+    
+    // Function to format numbers as currency
+    function currencyFormatter(number) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(number);
+    }
 
     // Draw circles for each data point on the male line
     svg.selectAll("circle.male")
@@ -133,7 +141,7 @@
       tooltip.transition()
         .duration(200)
         .style("opacity", .9);
-      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${d.Median}`)
+      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${currencyFormatter(d.Median)}`)
         .style("left", (event.pageX + 10) + "px") // Adjust the left position
         .style("top", (event.pageY - 28) + "px"); // Adjust the top position
     })
@@ -158,7 +166,7 @@
       tooltip.transition()
         .duration(200)
         .style("opacity", .9);
-      tooltip.html(`Year: ${d.Year}<br>Median (Female): ${d.Median}`)
+      tooltip.html(`Year: ${d.Year}<br>Median (Female): ${currencyFormatter(d.Median)}`)
         .style("left", (event.pageX + 10) + "px") // Adjust the left position
         .style("top", (event.pageY - 28) + "px"); // Adjust the top position
     })
