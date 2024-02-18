@@ -11,9 +11,9 @@
 
     // Parse the CSV with explicit data types
     data = d3.csvParse(csv, (d) => ({
-      // Convert 'INCTOT' to a number
+      // Convert 'STANDARDINCOME' to a number
       ...d,
-      INCTOT: +d.INCTOT,
+      STANDARDINCOME: +d.STANDARDINCOME,
     }));
 
     console.log(data);
@@ -62,7 +62,7 @@
       .text("Income Per Gender for " + selectedOccupation);
 
     // Filter data for the selected occupation and remove NaN values
-    var filteredData = data.filter(d => d.Groups === selectedOccupation && !isNaN(d.INCTOT));
+    var filteredData = data.filter(d => d.Groups === selectedOccupation && !isNaN(d.STANDARDINCOME));
 
     // Group data by 'MULTYEAR' and 'SEX'
     var groupedData = d3.group(filteredData, d => d.MULTYEAR, d => d.SEX);
@@ -70,12 +70,12 @@
     // Calculate median values for male and female
     var medianValuesMale = Array.from(groupedData, ([year, sexValues]) => ({
       Year: year,
-      Median: d3.median(sexValues.get('1') || [], d => d.INCTOT) || 0
+      Median: d3.median(sexValues.get('1') || [], d => d.STANDARDINCOME) || 0
     }));
 
     var medianValuesFemale = Array.from(groupedData, ([year, sexValues]) => ({
       Year: year,
-      Median: d3.median(sexValues.get('2') || [], d => d.INCTOT) || 0
+      Median: d3.median(sexValues.get('2') || [], d => d.STANDARDINCOME) || 0
     }));
 
     // Set up X and Y scales
