@@ -469,8 +469,9 @@ function drawLine(svg, data, group, width, height) {
 
   .legend {
     position: absolute;
-    top: 40px;
-    right: 5px;
+    top: 5%; /* Adjust top position as needed */
+    left: 15%; /* Adjust left position as needed */
+    transform: translate(-50%, 0); /* Center the legend horizontally */
   }
 </style>
 
@@ -504,4 +505,3 @@ function drawLine(svg, data, group, width, height) {
   </div>
 
 </div>
-
