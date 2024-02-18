@@ -230,7 +230,7 @@ svg.selectAll("circle.female")
       .attr("x", 0 - height / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .text("Total Pre-Tax Personal Income ($)");
+      .text("Median Total Pre-Tax Personal Income");
 
 
     // Add a tooltip element
