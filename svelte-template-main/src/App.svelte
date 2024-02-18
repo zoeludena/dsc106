@@ -128,54 +128,77 @@
     }
 
     // Draw circles for each data point on the male line
-    svg.selectAll("circle.male")
-      .data(medianValuesMale)
-      .enter().append("circle")
-      .attr("class", "male")
-      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
-      .attr("cy", d => yScale(d.Median))
-      .attr("r", 5) // Adjust the radius as needed
-      .attr("fill", "#0066FF") // Set the fill color for male circles
-      .on("mouseover", function (event, d) {
-      // Show tooltip on hover
-      tooltip.transition()
-        .duration(200)
-        .style("opacity", .9);
-      tooltip.html(`Year: ${d.Year}<br>Median (Male): ${currencyFormatter(d.Median)}`)
-        .style("left", (event.pageX + 10) + "px") // Adjust the left position
-        .style("top", (event.pageY - 28) + "px"); // Adjust the top position
-    })
-    .on("mouseout", function (d) {
-      // Hide tooltip on mouseout
-      tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
+svg.selectAll("circle.male")
+  .data(medianValuesMale)
+  .enter().append("circle")
+  .attr("class", "male-circle")
+  .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+  .attr("cy", d => yScale(d.Median))
+  .attr("r", 5) // Adjust the radius as needed
+  .attr("fill", "#0066FF"); // Set the fill color for male circles
+
+// Draw circles for each data point on the female line
+svg.selectAll("circle.female")
+  .data(medianValuesFemale)
+  .enter().append("circle")
+  .attr("class", "female-circle")
+  .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+  .attr("cy", d => yScale(d.Median))
+  .attr("r", 5) // Adjust the radius as needed
+  .attr("fill", "#FF6699"); // Set the fill color for female circles
+
+
+    // Define the bins
+    const bins = ["2017", "2018", "2019", "2020", "2021"];
+
+    // Iterate over each bin to create rectangles and handle mouseover events
+    bins.forEach((bin, index) => {
+      const nextBin = bins[index + 1];
+      const xStart = xScale(bin);
+      const xEnd = nextBin ? xScale(nextBin) : width;
+
+      svg.append("rect")
+        .attr("x", xStart)  // Left boundary
+        .attr("y", 0)  // Top boundary
+        .attr("width", xEnd - xStart)  // Width
+        .attr("height", height)  // Height
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", function (event) {
+          const hoveredYear = bin;
+          // Show labels only for the hovered year
+          svg.selectAll("text.male-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+          svg.selectAll("text.female-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+        })
+        .on("mouseout", function (d) {
+          // Hide labels
+          svg.selectAll("text.male-label").attr("visibility", "hidden");
+          svg.selectAll("text.female-label").attr("visibility", "hidden");
+        });
     });
 
-    // Draw circles for each data point on the female line
-    svg.selectAll("circle.female")
+
+    // Add labels for male medians
+    svg.selectAll("text.male-label")
+      .data(medianValuesMale)
+      .enter().append("text")
+      .attr("class", "male-label")
+      .attr("id", d => `male-label-${d.Year}`)
+      .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
+      .attr("y", d => yScale(d.Median) - 10)
+      .attr("visibility", "hidden")
+      .text(d => `Male Income: ${currencyFormatter(d.Median)}`);
+
+    // Add labels for female medians
+    svg.selectAll("text.female-label")
       .data(medianValuesFemale)
-      .enter().append("circle")
-      .attr("class", "female")
-      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
-      .attr("cy", d => yScale(d.Median))
-      .attr("r", 5) // Adjust the radius as needed
-      .attr("fill", "#FF6699") // Set the fill color for female circles
-      .on("mouseover", function (event, d) {
-      // Show tooltip on hover
-      tooltip.transition()
-        .duration(200)
-        .style("opacity", .9);
-      tooltip.html(`Year: ${d.Year}<br>Median (Female): ${currencyFormatter(d.Median)}`)
-        .style("left", (event.pageX + 10) + "px") // Adjust the left position
-        .style("top", (event.pageY - 28) + "px"); // Adjust the top position
-    })
-    .on("mouseout", function (d) {
-      // Hide tooltip on mouseout
-      tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
-    });
+      .enter().append("text")
+      .attr("class", "female-label")
+      .attr("id", d => `female-label-${d.Year}`)
+      .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
+      .attr("y", d => yScale(d.Median) + 20)
+      .attr("visibility", "hidden")
+      .text(d => `Female Income: ${currencyFormatter(d.Median)}`);
 
     // Draw X-axis
     svg.append("g")
