@@ -200,7 +200,7 @@ svg.selectAll("circle.female")
       .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
       .attr("y", d => yScale(d.Median) + 20)
       .attr("text-anchor", "middle")
-      .attr("dy", "1.2em")
+      .attr("dy", "-2.5em")
       .attr("visibility", "hidden")
       .text(d => `Female Income: ${currencyFormatter(d.Median)}`);
 
