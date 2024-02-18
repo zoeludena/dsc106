@@ -382,7 +382,7 @@ function drawLine(svg, data, group, width, height) {
         .y(d => yScale(d.MedianIncome));
 
     // Draw lines connecting the circles for male medians
-    svg.append("path")
+    const malePath = svg.append("path")
         .datum(data.filter(d => d.Sex === 'Male'))
         .attr("class", "line")
         .attr("fill", "none")
@@ -390,8 +390,10 @@ function drawLine(svg, data, group, width, height) {
         .attr("stroke-width", 2)
         .attr("d", line)
         .on("mouseover", function() {
-            d3.select(this).attr("stroke", "black"); // Change stroke color to black on mouseover
-            d3.select(this).attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
             // Add label showing group name
             svg.append("text")
                 .attr("class", "group-label")
@@ -403,13 +405,15 @@ function drawLine(svg, data, group, width, height) {
                 .text(group);
         })
         .on("mouseout", function() {
-            d3.select(this).attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
-            d3.select(this).attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
             svg.selectAll(".group-label").remove(); // Remove group label on mouseout
         });
 
     // Draw lines connecting the circles for female medians
-    svg.append("path")
+    const femalePath = svg.append("path")
         .datum(data.filter(d => d.Sex === 'Female'))
         .attr("class", "line")
         .attr("fill", "none")
@@ -417,8 +421,10 @@ function drawLine(svg, data, group, width, height) {
         .attr("stroke-width", 2)
         .attr("d", line)
         .on("mouseover", function() {
-            d3.select(this).attr("stroke", "black"); // Change stroke color to black on mouseover
-            d3.select(this).attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
             // Add label showing group name
             svg.append("text")
                 .attr("class", "group-label")
@@ -430,8 +436,10 @@ function drawLine(svg, data, group, width, height) {
                 .text(group);
         })
         .on("mouseout", function() {
-            d3.select(this).attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
-            d3.select(this).attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
             svg.selectAll(".group-label").remove(); // Remove group label on mouseout
         });
 }
