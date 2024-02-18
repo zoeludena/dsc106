@@ -1,11 +1,27 @@
 <script>
   import * as d3 from 'd3';
   import { onMount } from 'svelte';
+  import { onDestroy } from 'svelte';
 
   let data = [];
   let selectedGroup;
+  let svgWidth = 0;
+  let svgHeight = 0;
+
+  function updateSvgDimensions() {
+    //const container = document.getElementById('container');
+    svgWidth = window.innerWidth;
+    svgHeight = window.innerHeight;
+    
+    if (data.length > 0) {
+      drawLinePlot(data, selectedGroup)
+    }
+  }
+
 
   onMount(async () => {
+    updateSvgDimensions();
+    window.addEventListener("resize", updateSvgDimensions);
     const res = await fetch('data_full.csv');
     const csv = await res.text();
 
@@ -23,6 +39,13 @@
       selectedGroup = data[0].Groups;
       drawLinePlot(data, selectedGroup);
     }
+  });
+
+  onDestroy(() => {
+    if (typeof window !== 'undefined'){
+      window.removeEventListener('resize', updateSvgDimensions)
+    }
+  
   });
 
   // Line Plot
@@ -257,8 +280,16 @@ svg.selectAll("circle.female")
   }
 
   #my_dataviz {
-    width: 100vw;
+    width: calc(100% - 140px);
     height: 100vh;
+    float: left;
+    margin-top: 10px;
+  }
+
+  .legend {
+    position: absolute;
+    top: 90px;
+    right: 5px;
   }
 </style>
 
@@ -272,13 +303,15 @@ svg.selectAll("circle.female")
 
   <!-- Visualization container -->
   <div id="my_dataviz"></div>
+
+  <div class="legend">
+    <svg width="100" height="70">
+      <rect x="10" y="10" width="20" height="20" fill="#0066FF"></rect>
+      <text x="40" y="15" dy="0.75em">Male</text>
+      <rect x="10" y="40" width="20" height="20" fill="#FF6699"></rect>
+      <text x="40" y="45" dy="0.75em">Female</text>
+    </svg>
+  </div>
+
 </div>
 
-<div style="position: absolute; top: 10px; right: 10px;">
-  <svg width="100" height="70">
-    <rect x="10" y="10" width="20" height="20" fill="#0066FF"></rect>
-    <text x="40" y="15" dy="0.75em">Male</text>
-    <rect x="10" y="40" width="20" height="20" fill="#FF6699"></rect>
-    <text x="40" y="45" dy="0.75em">Female</text>
-  </svg>
-</div>
