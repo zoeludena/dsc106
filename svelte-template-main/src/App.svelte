@@ -80,9 +80,10 @@
 
     // Set up X and Y scales
     var xScale = d3.scaleBand()
-      .domain(medianValuesMale.map(d => d.Year))
+      .domain(["2017", "2018", "2019", "2020", "2021"]) // Set domain to desired years
       .range([0, width])
       .paddingInner(0.1);
+
 
     // Calculate the minimum value among male and female medians
     var minValue = d3.min([...medianValuesMale, ...medianValuesFemale], d => d.Median);
@@ -92,6 +93,10 @@
     var yScale = d3.scaleLinear()
       .domain([Math.max(0, minValue - 3000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
       .range([height, 0]);
+    
+    // Sort the data based on the year
+    medianValuesMale.sort((a, b) => a.Year - b.Year);
+    medianValuesFemale.sort((a, b) => a.Year - b.Year);
 
     // Draw the lines for male and female
     svg.append("path")
