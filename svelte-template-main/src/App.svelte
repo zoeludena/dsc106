@@ -186,7 +186,9 @@ svg.selectAll("circle.female")
       .attr("id", d => `male-label-${d.Year}`)
       .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
       .attr("y", d => yScale(d.Median) - 10)
+      .attr("dy", "-0.7em")
       .attr("visibility", "hidden")
+      .attr("text-anchor", "middle")
       .text(d => `Male Income: ${currencyFormatter(d.Median)}`);
 
     // Add labels for female medians
@@ -197,6 +199,8 @@ svg.selectAll("circle.female")
       .attr("id", d => `female-label-${d.Year}`)
       .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
       .attr("y", d => yScale(d.Median) + 20)
+      .attr("text-anchor", "middle")
+      .attr("dy", "1.2em")
       .attr("visibility", "hidden")
       .text(d => `Female Income: ${currencyFormatter(d.Median)}`);
 
