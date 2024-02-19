@@ -37,4 +37,4 @@ jobs:
         with:
           token: ${{ secrets.token }}
           BRANCH: gh-pages
-          FOLDER: svelte-template-main/src
+          FOLDER: svelte-template-main
