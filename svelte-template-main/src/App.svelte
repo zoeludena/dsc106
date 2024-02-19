@@ -127,7 +127,8 @@
 
     // Draw y axis
     svg.append("g")
-        .call(d3.axisLeft(yScale));
+      .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f"))) // Format y-axis ticks as currency
+      .style("font-size", "0.7em");
 
     // Labels
     svg.append("text")
@@ -150,50 +151,100 @@
 
     // Iterate over each group
     groupedData.forEach((groupValues, group) => {
-      var scatterData = [];
+      // Initialize an array to store the data for plotting
+      var plotData = [];
 
-      // Iterate over each year and include it even if there's no data
+      // Iterate over each year
       ["2017", "2018", "2019", "2020", "2021"].forEach(year => {
+        // Get median income for males and females
         var maleMedian = d3.median(groupValues.get(year)?.get('1') || [], d => d.STANDARDINCOME) || 0;
         var femaleMedian = d3.median(groupValues.get(year)?.get('2') || [], d => d.STANDARDINCOME) || 0;
-
-        scatterData.push({ Group: group, Year: year, Sex: 'Male', MedianIncome: maleMedian });
-        scatterData.push({ Group: group, Year: year, Sex: 'Female', MedianIncome: femaleMedian });
+        
+        // Push data points to plotData
+        plotData.push({ Year: year, Sex: 'Male', MedianIncome: maleMedian });
+        plotData.push({ Year: year, Sex: 'Female', MedianIncome: femaleMedian });
       });
 
-      // Draw circles for each median
-      svg.selectAll(`circle.${group}`)
-        .data(scatterData)
-        .enter()
-        .append("circle")
-        .attr("class", group)
-        .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
-        .attr("cy", d => yScale(d.MedianIncome))
-        .attr("r", 0.01) // Circle radius
-        .attr("fill", d => d.Sex === 'Male' ? "#0066FF" : "#FF6699"); // Circle color
+      // Draw lines and handle mouse events
+      drawLine(svg, plotData, group, width, height);
+    });
+}
 
-      // Draw lines connecting the circles for male medians
-      svg.append("path")
-        .datum(scatterData.filter(d => d.Sex === 'Male'))
+function drawLine(svg, data, group, width, height) {
+    const xScale = d3.scaleBand()
+        .domain(["2017", "2018", "2019", "2020", "2021"])
+        .range([0, width])
+        .paddingInner(0.1);
+
+    const yScale = d3.scaleLinear()
+        .domain([10000, 152000])
+        .range([height, 0]);
+
+    const line = d3.line()
+        .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
+        .y(d => yScale(d.MedianIncome));
+
+    // Draw lines connecting the circles for male medians
+    const malePath = svg.append("path")
+        .datum(data.filter(d => d.Sex === 'Male'))
+        .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "#0066FF")
         .attr("stroke-width", 2)
-        .attr("d", d3.line()
-          .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
-          .y(d => yScale(d.MedianIncome))
-        );
+        .attr("d", line)
+        .on("mouseover", function() {
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            // Add label showing group name
+            svg.append("text")
+                .attr("class", "group-label")
+                .attr("x", width / 2) // Adjust position to the center horizontally
+                .attr("y", -50) // Adjust position below the title
+                .attr("dy", "0.35em")
+                .style("text-anchor", "middle")
+                .style("font-size", "1em")
+                .text(group);
+        })
+        .on("mouseout", function() {
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
+            svg.selectAll(".group-label").remove(); // Remove group label on mouseout
+        });
 
-      // Draw lines connecting the circles for female medians
-      svg.append("path")
-        .datum(scatterData.filter(d => d.Sex === 'Female'))
+    // Draw lines connecting the circles for female medians
+    const femalePath = svg.append("path")
+        .datum(data.filter(d => d.Sex === 'Female'))
+        .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "#FF6699")
         .attr("stroke-width", 2)
-        .attr("d", d3.line()
-          .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
-          .y(d => yScale(d.MedianIncome))
-        );
-    });
+        .attr("d", line)
+        .on("mouseover", function() {
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            // Add label showing group name
+            svg.append("text")
+                .attr("class", "group-label")
+                .attr("x", width / 2) // Adjust position to the center horizontally
+                .attr("y", -50) // Adjust position below the title
+                .attr("dy", "0.35em")
+                .style("text-anchor", "middle")
+                .style("font-size", "1em")
+                .text(group);
+        })
+        .on("mouseout", function() {
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
+            svg.selectAll(".group-label").remove(); // Remove group label on mouseout
+        });
 }
 
 </script>
@@ -204,6 +255,7 @@
 
 <style>
   /* Add any styles if needed */
+
   #container {
     position: relative;
     min-height: 100vh;
@@ -213,11 +265,13 @@
 
   #dropdown {
     position: absolute;
+    font-family: 'Times New Roman', Times, serif;
     top: 0;
     left: 0;
   }
 
   #my_dataviz {
+    font-family: 'Times New Roman', Times, serif;
     width: calc(100% - 140px);
     height: 100vh;
     float: left;
@@ -226,9 +280,25 @@
 
   .legend {
     position: absolute;
-    top: 90px;
-    right: 5px;
+    bottom: 20px; /* Adjust bottom position as needed */
+    left: 90px; /* Adjust left position as needed */
+    transform: translate(-50%, 0); /* Center the legend horizontally */
     font-size: x-small;
+  }
+
+  .team-info {
+    position: absolute;
+    bottom: -30px;
+    right: 50px;
+    font-family: 'Times New Roman', Times, serif; /* Set the font for the team info */
+}
+
+  .team-info p:first-child {
+    font-weight: bold; /* Make the team name bold */
+  }
+
+  .team-info p:nth-child(n+2) {
+    font-size: 13px; /* Adjust the font size for the team members' names */
   }
   .vertical {
     position: absolute;
@@ -267,8 +337,8 @@
     <!-- New Option "All Groups" -->
     <option value="All Groups">All Occupations</option>
     <!-- Existing options -->
-    {#each [...new Set(data.map(d => d.Groups))] as group}
-      <option value={group}>{group}</option>
+    {#each [...new Set(data.map(d => d.Groups))].sort() as group}
+    <option value={group}>{group}</option>
     {/each}
   </select>
 
@@ -300,5 +370,12 @@
     </svg>
   </div>
 
-</div>
+  <!-- Team name and names -->
+  <div class="team-info">
+    <p>Graphic Girls</p>
+    <p>Anastasiya Markova</p>
+    <p>Maryam Almahasnah</p>
+    <p>Zoe Ludena</p>
+  </div>
 
+</div>
