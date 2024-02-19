@@ -88,7 +88,6 @@
       .append("g")
       .attr("transform", "translate(" + (margin.left + padding) + "," + (margin.top + padding) + ")");
 
-
     // Add title
     svg.append("text")
       .attr("x", width / 2)
@@ -200,17 +199,20 @@
         .attr("height", height)  // Height
         .style("fill", "none")
         .style("pointer-events", "all")
+        
         .on("mouseover", function (event) {
-          const hoveredYear = bin;
-          // Show labels only for the hovered year
-          svg.selectAll("text.male-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
-          svg.selectAll("text.female-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
-        })
+            const hoveredYear = bin;
+
+            // Show labels only for the hovered year
+            svg.selectAll("text.male-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+            svg.selectAll("text.female-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+          })
+
         .on("mouseout", function (d) {
-          // Hide labels
-          svg.selectAll("text.male-label").attr("visibility", "hidden");
-          svg.selectAll("text.female-label").attr("visibility", "hidden");
-        });
+            // Hide labels
+            svg.selectAll("text.male-label").attr("visibility", "hidden");
+            svg.selectAll("text.female-label").attr("visibility", "hidden");
+          });
     });
 
     // Add labels for male medians
@@ -255,7 +257,7 @@
 
     // Draw Y-axis
     svg.append("g")
-      .call(d3.axisLeft(yScale))
+      .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f"))) // Format y-axis ticks as currency
       .style("font-size", "0.7em");
 
     // Y-axis label
@@ -325,7 +327,8 @@
 
     // Draw y axis
     svg.append("g")
-        .call(d3.axisLeft(yScale));
+      .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f"))) // Format y-axis ticks as currency
+      .style("font-size", "0.7em");
 
     // Labels
     svg.append("text")
@@ -448,6 +451,10 @@ function drawLine(svg, data, group, width, height) {
 
 <style>
   /* Add any styles if needed */
+  body {
+    font-family: 'Times New Roman', Times, serif; /* Set the font for the entire body */
+  }
+
   #container {
     position: relative;
     min-height: 100vh;
@@ -456,11 +463,13 @@ function drawLine(svg, data, group, width, height) {
 
   #dropdown {
     position: absolute;
+    font-family: 'Times New Roman', Times, serif;
     top: 0;
     left: 0;
   }
 
   #my_dataviz {
+    font-family: 'Times New Roman', Times, serif;
     width: calc(100% - 140px);
     height: 100vh;
     float: left;
@@ -469,10 +478,26 @@ function drawLine(svg, data, group, width, height) {
 
   .legend {
     position: absolute;
-    top: 5%; /* Adjust top position as needed */
-    left: 15%; /* Adjust left position as needed */
+    bottom: 20px; /* Adjust bottom position as needed */
+    left: 90px; /* Adjust left position as needed */
     transform: translate(-50%, 0); /* Center the legend horizontally */
   }
+
+  .team-info {
+    position: absolute;
+    bottom: -30px;
+    right: 50px;
+    font-family: 'Times New Roman', Times, serif; /* Set the font for the team info */
+}
+
+  .team-info p:first-child {
+    font-weight: bold; /* Make the team name bold */
+  }
+
+  .team-info p:nth-child(n+2) {
+    font-size: 13px; /* Adjust the font size for the team members' names */
+  }
+
 </style>
 
 <div id="container">
@@ -487,8 +512,8 @@ function drawLine(svg, data, group, width, height) {
     <!-- New Option "All Groups" -->
     <option value="All Groups">All Groups</option>
     <!-- Existing options -->
-    {#each [...new Set(data.map(d => d.Groups))] as group}
-      <option value={group}>{group}</option>
+    {#each [...new Set(data.map(d => d.Groups))].sort() as group}
+    <option value={group}>{group}</option>
     {/each}
   </select>
 
@@ -502,6 +527,14 @@ function drawLine(svg, data, group, width, height) {
       <rect x="10" y="40" width="20" height="20" fill="#FF6699"></rect>
       <text x="40" y="45" dy="0.75em">Female</text>
     </svg>
+  </div>
+
+  <!-- Team name and names -->
+  <div class="team-info">
+    <p>Graphic Girls</p>
+    <p>Anastasiya Markova</p>
+    <p>Maryam Almahasnah</p>
+    <p>Zoe Ludena</p>
   </div>
 
 </div>
