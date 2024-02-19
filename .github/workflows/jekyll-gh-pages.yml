@@ -13,7 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Install dependencies and build Svelte app
       - name: Install Node.js and npm
         uses: actions/setup-node@v3
         with:
@@ -21,9 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: svelte-template-main
 
       - name: Build Svelte app
         run: npm run build
+        working-directory: svelte-template-main
 
   deploy:
     runs-on: ubuntu-latest
@@ -33,10 +34,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Deploy built files to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # Branch to deploy to
-          FOLDER: svelte-template-main/src   # Folder containing the built files
+          BRANCH: gh-pages
+          FOLDER: svelte-template-main/src
