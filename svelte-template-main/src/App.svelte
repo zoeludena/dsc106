@@ -207,6 +207,11 @@ function drawLine(svg, data, group, width, height) {
                 .style("font-size", "1em")
                 .text(group);
         })
+        .on("click", function() {
+          selectedGroup = group;
+          drawLinePlot(data, group);
+          updateSvgDimensions();
+        })
         .on("mouseout", function() {
             malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
             femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
@@ -238,6 +243,11 @@ function drawLine(svg, data, group, width, height) {
                 .style("font-size", "1em")
                 .text(group);
         })
+        .on("click", function() {
+          selectedGroup = group;
+            drawLinePlot(data, group);
+            updateSvgDimensions();
+        })
         .on("mouseout", function() {
             malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
             femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
@@ -265,13 +275,13 @@ function drawLine(svg, data, group, width, height) {
 
   #dropdown {
     position: absolute;
-    font-family: 'Times New Roman', Times, serif;
+    /* font-family: 'Times New Roman', Times, serif; */
     top: 0;
     left: 0;
   }
 
   #my_dataviz {
-    font-family: 'Times New Roman', Times, serif;
+    /* font-family: 'Times New Roman', Times, serif; */
     width: calc(100% - 140px);
     height: 100vh;
     float: left;
@@ -290,7 +300,7 @@ function drawLine(svg, data, group, width, height) {
     position: absolute;
     bottom: -30px;
     right: 50px;
-    font-family: 'Times New Roman', Times, serif; /* Set the font for the team info */
+    /* font-family: 'Times New Roman', Times, serif; Set the font for the team info */
 }
 
   .team-info p:first-child {
