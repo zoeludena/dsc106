@@ -16,7 +16,8 @@ const config = {
 			strict: true
 		}),
 		paths: {
-			base: process.argv.includes('dev') ? '' : '/dsc106-Project3'//process.env.BASE_PATH
+			base: process.env.GITHUB_PAGES ? '/dsc106-Project3/' : '',
+			//base: process.argv.includes('dev') ? '' : '/dsc106-Project3'//process.env.BASE_PATH
 		}
 	}
 };
