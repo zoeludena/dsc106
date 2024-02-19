@@ -13,18 +13,23 @@
 
 
   function togglePlot(event) {
+    if (typeof event.target !== 'undefined') {
       showLinePlot = event.target.value;
-      let cond = event.target.value > 0 ? false: true;
-      //showLinePlot = !showLinePlot;
-      if (selectedGroup === 'All Groups') {
-        allGroups();
+    }
+    else {
+      showLinePlot = event;
+    }
+    let cond = showLinePlot > 0 ? false: true;
+    //showLinePlot = !showLinePlot;
+    if (selectedGroup === 'All Groups') {
+      allGroups();
+    } else {
+      if (cond) {
+        drawLinePlot(data, selectedGroup);
       } else {
-        if (cond) {
-          drawLinePlot(data, selectedGroup);
-        } else {
-          drawBoxPlot(data, selectedGroup);
-        }
+        drawBoxPlot(data, selectedGroup);
       }
+    }
   }
 
   function updateSvgDimensions() {
