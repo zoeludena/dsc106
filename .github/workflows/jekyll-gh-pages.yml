@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: '14.x'
 
+      - name: Set up working directory
+        run: cd svelte-template-main
+
       - name: Install dependencies
         run: npm install
 
