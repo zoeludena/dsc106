@@ -1,0 +1,540 @@
+<script>
+  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+  import { onDestroy } from 'svelte';
+
+  let data = [];
+  let selectedGroup = "All Groups";
+  let svgWidth = 0;
+  let svgHeight = 0;
+
+  function updateSvgDimensions() {
+    //const container = document.getElementById('container');
+    svgWidth = window.innerWidth;
+    svgHeight = window.innerHeight;
+    
+    if (data.length > 0) {
+      if (selectedGroup === 'All Groups') {
+        allGroups();
+      } else {
+        drawLinePlot(data, selectedGroup);
+      }
+    }
+  }
+
+
+  onMount(async () => {
+    updateSvgDimensions();
+    window.addEventListener("resize", updateSvgDimensions);
+    const res = await fetch('data_full.csv');
+    const csv = await res.text();
+
+    // Parse the CSV with explicit data types
+    data = d3.csvParse(csv, (d) => ({
+      // Convert 'STANDARDINCOME' to a number
+      ...d,
+      STANDARDINCOME: +d.STANDARDINCOME,
+    }));
+
+    // console.log(data);
+
+    // Draw line plot for a specific occupation
+    if (data.length > 0) {
+      if (selectedGroup === 'All Groups') {
+        allGroups();
+      } else {
+        drawLinePlot(data, selectedGroup);
+      }
+    }
+  });
+
+  onDestroy(() => {
+    if (typeof window !== 'undefined'){
+      window.removeEventListener('resize', updateSvgDimensions)
+    }
+  
+  });
+
+  onDestroy(() => {
+    if (typeof window !== 'undefined'){
+      window.removeEventListener('resize', updateSvgDimensions)
+    }
+  
+  });
+
+  // Line Plot
+  function drawLinePlot(data, selectedOccupation) {
+
+    // Remove existing SVG elements
+    d3.select("#my_dataviz").selectAll("*").remove();
+
+    // console.log("Selected Group:", selectedGroup);
+
+    // Set the dimensions of the SVG
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Adjust dimensions as needed
+    const margin = { top: 60, right: 30, bottom: 90, left: 30 }; // Adjust left margin
+    const padding = 60; // Increase the padding
+    const width = screenWidth - margin.left - margin.right - (padding * 2);
+    const height = screenHeight - margin.top - margin.bottom - (padding * 2);
+
+    // Append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right + (padding * 2))
+      .attr("height", height + margin.top + margin.bottom + (padding * 2))
+      .append("g")
+      .attr("transform", "translate(" + (margin.left + padding) + "," + (margin.top + padding) + ")");
+
+    // Add title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -90) // Adjusted y-coordinate
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .style("font-size", "1.5em") // Adjust font size as needed
+      .text("Income Per Gender for " + selectedOccupation);
+
+    // Filter data for the selected occupation and remove NaN values
+    var filteredData = data.filter(d => d.Groups === selectedOccupation && !isNaN(d.STANDARDINCOME));
+
+    // Group data by 'MULTYEAR' and 'SEX'
+    var groupedData = d3.group(filteredData, d => d.MULTYEAR, d => d.SEX);
+
+    // Calculate median values for male and female
+    var medianValuesMale = Array.from(groupedData, ([year, sexValues]) => ({
+      Year: year,
+      Median: d3.median(sexValues.get('1') || [], d => d.STANDARDINCOME) || 0
+    }));
+
+    var medianValuesFemale = Array.from(groupedData, ([year, sexValues]) => ({
+      Year: year,
+      Median: d3.median(sexValues.get('2') || [], d => d.STANDARDINCOME) || 0
+    }));
+
+    // Set up X and Y scales
+    var xScale = d3.scaleBand()
+      .domain(["2017", "2018", "2019", "2020", "2021"]) // Set domain to desired years
+      .range([0, width])
+      .paddingInner(0.1);
+
+
+    // Calculate the minimum value among male and female medians
+    var minValue = d3.min([...medianValuesMale, ...medianValuesFemale], d => d.Median);
+  
+
+    // Set up Y scale based on the minimum value with a 1000 offset
+    var yScale = d3.scaleLinear()
+      .domain([Math.max(0, minValue - 3000), d3.max([...medianValuesMale, ...medianValuesFemale], d => d.Median)])
+      .range([height, 0]);
+    
+    // Sort the data based on the year
+    medianValuesMale.sort((a, b) => a.Year - b.Year);
+    medianValuesFemale.sort((a, b) => a.Year - b.Year);
+
+    // Draw the lines for male and female
+    svg.append("path")
+      .datum(medianValuesMale)
+      .attr("fill", "none")
+      .attr("stroke", "#0066FF")
+      .attr("stroke-width", 2)
+      .attr("d", d3.line()
+        .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
+        .y(d => yScale(d.Median))
+      );
+
+    svg.append("path")
+      .datum(medianValuesFemale)
+      .attr("fill", "none")
+      .attr("stroke", "#FF6699")
+      .attr("stroke-width", 2)
+      .attr("d", d3.line()
+        .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
+        .y(d => yScale(d.Median))
+      );
+    
+    // Function to format numbers as currency
+    function currencyFormatter(number) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(number);
+    }
+
+    // Draw circles for each data point on the male line
+    svg.selectAll("circle.male")
+      .data(medianValuesMale)
+      .enter().append("circle")
+      .attr("class", "male-circle")
+      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.Median))
+      .attr("r", 5) // Adjust the radius as needed
+      .attr("fill", "#0066FF"); // Set the fill color for male circles
+
+        // Draw circles for each data point on the female line
+    svg.selectAll("circle.female")
+      .data(medianValuesFemale)
+      .enter().append("circle")
+      .attr("class", "female-circle")
+      .attr("cx", d => xScale(d.Year) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.Median))
+      .attr("r", 5) // Adjust the radius as needed
+      .attr("fill", "#FF6699"); // Set the fill color for female circles
+
+    // Define the bins
+    const bins = ["2017", "2018", "2019", "2020", "2021"];
+
+    // Iterate over each bin to create rectangles and handle mouseover events
+    bins.forEach((bin, index) => {
+      const nextBin = bins[index + 1];
+      const xStart = xScale(bin);
+      const xEnd = nextBin ? xScale(nextBin) : width;
+
+      svg.append("rect")
+        .attr("x", xStart)  // Left boundary
+        .attr("y", 0)  // Top boundary
+        .attr("width", xEnd - xStart)  // Width
+        .attr("height", height)  // Height
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        
+        .on("mouseover", function (event) {
+            const hoveredYear = bin;
+
+            // Show labels only for the hovered year
+            svg.selectAll("text.male-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+            svg.selectAll("text.female-label").attr("visibility", d => (d.Year === hoveredYear ? "visible" : "hidden"));
+          })
+
+        .on("mouseout", function (d) {
+            // Hide labels
+            svg.selectAll("text.male-label").attr("visibility", "hidden");
+            svg.selectAll("text.female-label").attr("visibility", "hidden");
+          });
+    });
+
+    // Add labels for male medians
+    svg.selectAll("text.male-label")
+      .data(medianValuesMale)
+      .enter().append("text")
+      .attr("class", "male-label")
+      .attr("id", d => `male-label-${d.Year}`)
+      .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
+      .attr("y", d => yScale(d.Median) - 10)
+      .attr("dy", "-0.7em")
+      .attr("visibility", "hidden")
+      .attr("text-anchor", "middle")
+      .text(d => `Male Income: ${currencyFormatter(d.Median)}`);
+
+    // Add labels for female medians
+    svg.selectAll("text.female-label")
+      .data(medianValuesFemale)
+      .enter().append("text")
+      .attr("class", "female-label")
+      .attr("id", d => `female-label-${d.Year}`)
+      .attr("x", d => xScale(d.Year) + xScale.bandwidth() / 2 + 10)
+      .attr("y", d => yScale(d.Median) + 20)
+      .attr("text-anchor", "middle")
+      .attr("dy", "-2.5em")
+      .attr("visibility", "hidden")
+      .text(d => `Female Income: ${currencyFormatter(d.Median)}`);
+
+    // Draw X-axis
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale))
+      .style("font-size", ".7em");
+
+    // X-axis label
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + margin.top - 30)
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .text("Year");
+
+    // Draw Y-axis
+    svg.append("g")
+      .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f"))) // Format y-axis ticks as currency
+      .style("font-size", "0.7em");
+
+    // Y-axis label
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left - 50)
+      .attr("x", 0 - height / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Median Total Pre-Tax Personal Income");
+
+
+    // Add a tooltip element
+    var tooltip = d3.select("body")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("position", "absolute");
+  }
+
+  function allGroups() {
+    // Remove existing SVG elements
+    d3.select("#my_dataviz").selectAll("*").remove();
+
+    // Set the dimensions of the SVG
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Adjust dimensions as needed
+    const margin = { top: 60, right: 30, bottom: 90, left: 30 }; // Adjust left margin
+    const padding = 60; // Increase the padding
+    const width = screenWidth - margin.left - margin.right - (padding * 2);
+    const height = screenHeight - margin.top - margin.bottom - (padding * 2);
+
+    // Append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right + (padding * 2))
+      .attr("height", height + margin.top + margin.bottom + (padding * 2))
+      .append("g")
+      .attr("transform", "translate(" + (margin.left + padding) + "," + (margin.top + padding) + ")");
+
+    // Add title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -90) // Adjusted y-coordinate
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .style("font-size", "1.5em") // Adjust font size as needed
+      .text("Income Per Gender for All Groups");
+
+    // Define the scales for x and y axes
+    var xScale = d3.scaleBand()
+      .domain(["2017", "2018", "2019", "2020", "2021"]) // Set domain to desired years
+      .range([0, width])
+      .paddingInner(0.1);
+
+    const yScale = d3.scaleLinear()
+        .domain([10000, 152000]) // Set the domain for y-axis
+        .range([height, 0]); // Inverted range for y-axis
+
+    // Draw x axis
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale))
+      .style("font-size", ".7em");
+
+    // Draw y axis
+    svg.append("g")
+      .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f"))) // Format y-axis ticks as currency
+      .style("font-size", "0.7em");
+
+    // Labels
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + margin.top - 30)
+      .attr("dy", "0.75em")
+      .style("text-anchor", "middle")
+      .text("Year");
+
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left - 50)
+      .attr("x", 0 - height / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Median Total Pre-Tax Personal Income");
+
+    // Group data by 'Groups', 'MULTYEAR', and 'SEX'
+    var groupedData = d3.group(data, d => d.Groups, d => d.MULTYEAR, d => d.SEX);
+
+    // Iterate over each group
+    groupedData.forEach((groupValues, group) => {
+      // Initialize an array to store the data for plotting
+      var plotData = [];
+
+      // Iterate over each year
+      ["2017", "2018", "2019", "2020", "2021"].forEach(year => {
+        // Get median income for males and females
+        var maleMedian = d3.median(groupValues.get(year)?.get('1') || [], d => d.STANDARDINCOME) || 0;
+        var femaleMedian = d3.median(groupValues.get(year)?.get('2') || [], d => d.STANDARDINCOME) || 0;
+        
+        // Push data points to plotData
+        plotData.push({ Year: year, Sex: 'Male', MedianIncome: maleMedian });
+        plotData.push({ Year: year, Sex: 'Female', MedianIncome: femaleMedian });
+      });
+
+      // Draw lines and handle mouse events
+      drawLine(svg, plotData, group, width, height);
+    });
+}
+
+function drawLine(svg, data, group, width, height) {
+    const xScale = d3.scaleBand()
+        .domain(["2017", "2018", "2019", "2020", "2021"])
+        .range([0, width])
+        .paddingInner(0.1);
+
+    const yScale = d3.scaleLinear()
+        .domain([10000, 152000])
+        .range([height, 0]);
+
+    const line = d3.line()
+        .x(d => xScale(d.Year) + xScale.bandwidth() / 2)
+        .y(d => yScale(d.MedianIncome));
+
+    // Draw lines connecting the circles for male medians
+    const malePath = svg.append("path")
+        .datum(data.filter(d => d.Sex === 'Male'))
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", "#0066FF")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+        .on("mouseover", function() {
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            // Add label showing group name
+            svg.append("text")
+                .attr("class", "group-label")
+                .attr("x", width / 2) // Adjust position to the center horizontally
+                .attr("y", -50) // Adjust position below the title
+                .attr("dy", "0.35em")
+                .style("text-anchor", "middle")
+                .style("font-size", "1em")
+                .text(group);
+        })
+        .on("mouseout", function() {
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
+            svg.selectAll(".group-label").remove(); // Remove group label on mouseout
+        });
+
+    // Draw lines connecting the circles for female medians
+    const femalePath = svg.append("path")
+        .datum(data.filter(d => d.Sex === 'Female'))
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", "#FF6699")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+        .on("mouseover", function() {
+            malePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            femalePath.attr("stroke-width", 4); // Increase stroke width on mouseover
+            malePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            femalePath.attr("stroke", "black"); // Change stroke color to black on mouseover
+            // Add label showing group name
+            svg.append("text")
+                .attr("class", "group-label")
+                .attr("x", width / 2) // Adjust position to the center horizontally
+                .attr("y", -50) // Adjust position below the title
+                .attr("dy", "0.35em")
+                .style("text-anchor", "middle")
+                .style("font-size", "1em")
+                .text(group);
+        })
+        .on("mouseout", function() {
+            malePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            femalePath.attr("stroke-width", 2); // Restore original stroke width on mouseout
+            malePath.attr("stroke", "#0066FF"); // Restore original stroke color on mouseout
+            femalePath.attr("stroke", "#FF6699"); // Restore original stroke color on mouseout
+            svg.selectAll(".group-label").remove(); // Remove group label on mouseout
+        });
+}
+
+</script>
+
+<style>
+  /* Add any styles if needed */
+  body {
+    font-family: 'Times New Roman', Times, serif; /* Set the font for the entire body */
+  }
+
+  #container {
+    position: relative;
+    min-height: 100vh;
+    padding: 20px; /* Add padding for better spacing */
+  }
+
+  #dropdown {
+    position: absolute;
+    font-family: 'Times New Roman', Times, serif;
+    top: 0;
+    left: 0;
+  }
+
+  #my_dataviz {
+    font-family: 'Times New Roman', Times, serif;
+    width: calc(100% - 140px);
+    height: 100vh;
+    float: left;
+    margin-top: 10px;
+  }
+
+  .legend {
+    position: absolute;
+    bottom: 20px; /* Adjust bottom position as needed */
+    left: 90px; /* Adjust left position as needed */
+    transform: translate(-50%, 0); /* Center the legend horizontally */
+  }
+
+  .team-info {
+    position: absolute;
+    bottom: -30px;
+    right: 50px;
+    font-family: 'Times New Roman', Times, serif; /* Set the font for the team info */
+}
+
+  .team-info p:first-child {
+    font-weight: bold; /* Make the team name bold */
+  }
+
+  .team-info p:nth-child(n+2) {
+    font-size: 13px; /* Adjust the font size for the team members' names */
+  }
+
+</style>
+
+<div id="container">
+  <!-- Dropdown menu for selecting groups -->
+  <select id="dropdown" bind:value={selectedGroup} on:change={() => {
+    if (selectedGroup === 'All Groups') {
+      allGroups();
+    } else {
+      drawLinePlot(data, selectedGroup);
+    }
+  }}>
+    <!-- New Option "All Groups" -->
+    <option value="All Groups">All Groups</option>
+    <!-- Existing options -->
+    {#each [...new Set(data.map(d => d.Groups))].sort() as group}
+    <option value={group}>{group}</option>
+    {/each}
+  </select>
+
+  <!-- Visualization container -->
+  <div id="my_dataviz"></div>
+
+  <div class="legend">
+    <svg width="100" height="70">
+      <rect x="10" y="10" width="20" height="20" fill="#0066FF"></rect>
+      <text x="40" y="15" dy="0.75em">Male</text>
+      <rect x="10" y="40" width="20" height="20" fill="#FF6699"></rect>
+      <text x="40" y="45" dy="0.75em">Female</text>
+    </svg>
+  </div>
+
+  <!-- Team name and names -->
+  <div class="team-info">
+    <p>Graphic Girls</p>
+    <p>Anastasiya Markova</p>
+    <p>Maryam Almahasnah</p>
+    <p>Zoe Ludena</p>
+  </div>
+
+</div>
