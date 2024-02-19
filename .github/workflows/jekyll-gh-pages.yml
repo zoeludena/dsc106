@@ -18,14 +18,11 @@ jobs:
         with:
           node-version: '14.x'
 
-      - name: Set up working directory
-        run: cd svelte-template-main
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Svelte app
-        run: npm run build
+      - name: Install dependencies and build Svelte app
+        run: |
+          cd svelte-template-main
+          npm install
+          npm run build
 
   deploy:
     runs-on: ubuntu-latest
